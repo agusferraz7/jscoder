@@ -1,99 +1,97 @@
-// arrays con vinos
-let productos = [
-    { nombre: "Vino Nacional rojo" },
-    { nombre: "Vino Nacional blanco" },
-    { nombre: "Vino Nacional azul" },
-    { nombre: "Vino Nacional Edición Luis Suárez rojo" },
-    { nombre: "Vino Nacional Edición Luis Suárez blanco" },
-    { nombre: "Vino Nacional Edición Luis Suárez azul" },
-    { nombre: "Vino Nacional Edición GPC rojo" },
-    { nombre: "Vino Nacional Edición GPC blanco" },
-    { nombre: "Vino Nacional Edición GPC azul" },
-    { nombre: "Vino Nacional Edición Abdón Porte rojo" },
-    { nombre: "Vino Nacional Edición Abdón Porte blanco" },
-    { nombre: "Vino Nacional Edición Abdón Porte azul" }
+// Productos con precios
+const productos = [
+    { nombre: "Vino Nacional rojo", precio: 650 },
+    { nombre: "Vino Nacional blanco", precio: 750 },
+    { nombre: "Vino Nacional azul", precio: 950 },
+    { nombre: "Vino Nacional Edición Luis Suárez rojo", precio: 650 },
+    { nombre: "Vino Nacional Edición Luis Suárez blanco", precio: 750 },
+    { nombre: "Vino Nacional Edición Luis Suárez azul", precio: 950 },
+    { nombre: "Vino Nacional Edición GPC rojo", precio: 650 },
+    { nombre: "Vino Nacional Edición GPC blanco", precio: 750 },
+    { nombre: "Vino Nacional Edición GPC azul", precio: 950 },
+    { nombre: "Vino Nacional Edición Abdón Porte rojo", precio: 650 },
+    { nombre: "Vino Nacional Edición Abdón Porte blanco", precio: 750 },
+    { nombre: "Vino Nacional Edición Abdón Porte azul", precio: 950 }
 ];
 
-// precios por color
-for (let i = 0; i < productos.length; i++) {
-    let nombre = productos[i].nombre.toLowerCase();
+// Cargar carrito desde localStorage o vacío
+let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
 
-    if (nombre.includes("rojo")) {
-        productos[i].precio = 650;
-    } else if (nombre.includes("blanco")) {
-        productos[i].precio = 750;
-    } else if (nombre.includes("azul")) {
-        productos[i].precio = 950;
-    }
+// DOM
+const listaVinos = document.getElementById('lista-vinos');
+const carritoContenido = document.getElementById('carrito-contenido');
+const btnVaciarCarrito = document.getElementById('vaciar-carrito');
+
+// Función para mostrar productos disponibles
+function mostrarProductos() {
+    listaVinos.innerHTML = '';
+    productos.forEach((producto, index) => {
+        const div = document.createElement('div');
+
+        div.innerHTML = `
+            <span>${producto.nombre} - $${producto.precio}</span>
+            <button data-index="${index}">Agregar al carrito</button>
+        `;
+        listaVinos.appendChild(div);
+    });
 }
 
-// carrito de compras
-let carrito = [];
-
-// mostrar vinos en consola
-function mostrarVinos() {
-    console.log("Vinos disponibles:");
-    for (let i = 0; i < productos.length; i++) {
-        console.log((i + 1) + ". " + productos[i].nombre + " - $" + productos[i].precio);
-    }
-}
-
-// agregar vinos al carrito
-function agregarAlCarrito() {
-    let seleccion = prompt("Ingrese el número de vino que desea comprar (1 al 12):");
-    let indice = parseInt(seleccion) - 1;
-
-    if (indice >= 0 && indice < productos.length) {
-    carrito.push(productos[indice]);
-    alert("Agregaste: " + productos[indice].nombre + " al carrito.");
-    } else {
-    alert("Selección inválida.");
-    }
-}
-
-// ver carrito
-
-function verCarrito() {
+// Función para actualizar el carrito en el DOM
+function actualizarCarrito() {
     if (carrito.length === 0) {
-        alert("Tu carrito está vacío.");
-    } else {
-        let mensaje = "Carrito de compras:\n";
-        let total = 0;
-    
-    for (let i = 0; i < carrito.length; i++) {
-        let producto = carrito[i];
-        mensaje += producto.nombre + " - $" + producto.precio + "\n";
-        total += producto.precio;
+        carritoContenido.innerHTML = '<p>Tu carrito está vacío.</p>';
+        return;
     }
 
-        mensaje += "\nTotal: $" + total;
-        alert(mensaje);
-    }
+    let total = 0;
+    let ul = document.createElement('ul');
+
+    carrito.forEach((item) => {
+        const li = document.createElement('li');
+        li.textContent = `${item.nombre} - $${item.precio}`;
+        ul.appendChild(li);
+        total += item.precio;
+    });
+
+    carritoContenido.innerHTML = '';
+    carritoContenido.appendChild(ul);
+    const totalDiv = document.createElement('div');
+    totalDiv.textContent = `Total: $${total}`;
+    totalDiv.style.fontWeight = 'bold';
+    totalDiv.style.marginTop = '10px';
+    carritoContenido.appendChild(totalDiv);
 }
 
-// principal
-alert("¡Bienvenido/a a Vino Nacional!");
-
-let salir = false;
-
-while (!salir) {
-    let opcion = prompt("Elige una opción:\n1. Ver vinos\n2. Agregar un vino al carrito\n3. Ver carrito\n4. Salir");
-
-    switch (opcion) {
-        case "1":
-            mostrarVinos();
-            break;
-        case "2":
-            agregarAlCarrito();
-            break;
-        case "3":
-            verCarrito();
-            break;
-        case "4":
-            salir = true;
-            alert("Gracias por visitar Vino Nacional. ¡Te esperamos nuevamente!");
-            break;
-        default:
-            alert("Opción inválida. Intenta de nuevo.");
-    }
+// Función para agregar producto al carrito
+function agregarAlCarrito(index) {
+    carrito.push(productos[index]);
+    guardarCarrito();
+    actualizarCarrito();
 }
+
+// Guardar carrito en localStorage
+function guardarCarrito() {
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+}
+
+// Vaciar carrito
+function vaciarCarrito() {
+    carrito = [];
+    guardarCarrito();
+    actualizarCarrito();
+}
+
+// Evento para los botones "Agregar al carrito"
+listaVinos.addEventListener('click', e => {
+    if (e.target.tagName === 'BUTTON') {
+        const index = e.target.getAttribute('data-index');
+        agregarAlCarrito(index);
+    }
+});
+
+// Evento para vaciar carrito
+btnVaciarCarrito.addEventListener('click', vaciarCarrito);
+
+
+mostrarProductos();
+actualizarCarrito();
