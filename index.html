@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Vino Nacional - Un Vino Gigante</title>
     <link rel="stylesheet" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <h1>Vino Nacional</h1>
 
     <section id="productos">
         <h2>Productos disponibles</h2>
+        <input type="text" id="buscar" placeholder="Buscar vino..." />
         <div id="lista-vinos"></div>
     </section>
 
@@ -18,6 +20,15 @@
         <h2>Tu carrito</h2>
         <div id="carrito-contenido"></div>
         <button id="vaciar-carrito">Vaciar carrito</button>
+    </section>
+
+    <section id="finalizar-compra">
+        <h2>Finalizar compra</h2>
+        <form id="form-compra">
+            <input type="text" id="nombre" placeholder="Tu nombre" required />
+            <input type="email" id="email" placeholder="Tu email" required />
+            <button type="submit">Comprar</button>
+        </form>
     </section>
 
     <script src="javascript/script.js"></script>

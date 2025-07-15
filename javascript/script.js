@@ -1,42 +1,34 @@
-// Productos con precios
-const productos = [
-    { nombre: "Vino Nacional rojo", precio: 650 },
-    { nombre: "Vino Nacional blanco", precio: 750 },
-    { nombre: "Vino Nacional azul", precio: 950 },
-    { nombre: "Vino Nacional Edición Luis Suárez rojo", precio: 650 },
-    { nombre: "Vino Nacional Edición Luis Suárez blanco", precio: 750 },
-    { nombre: "Vino Nacional Edición Luis Suárez azul", precio: 950 },
-    { nombre: "Vino Nacional Edición GPC rojo", precio: 650 },
-    { nombre: "Vino Nacional Edición GPC blanco", precio: 750 },
-    { nombre: "Vino Nacional Edición GPC azul", precio: 950 },
-    { nombre: "Vino Nacional Edición Abdón Porte rojo", precio: 650 },
-    { nombre: "Vino Nacional Edición Abdón Porte blanco", precio: 750 },
-    { nombre: "Vino Nacional Edición Abdón Porte azul", precio: 950 }
-];
-
-// Cargar carrito desde localStorage o vacío
+let productos = [];
 let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
 
-// DOM
 const listaVinos = document.getElementById('lista-vinos');
 const carritoContenido = document.getElementById('carrito-contenido');
 const btnVaciarCarrito = document.getElementById('vaciar-carrito');
+const formCompra = document.getElementById('form-compra');
+const inputBuscar = document.getElementById('buscar');
 
-// Función para mostrar productos disponibles
-function mostrarProductos() {
+async function cargarProductos() {
+    try {
+        const res = await fetch('productos.json');
+        productos = await res.json();
+        mostrarProductos();
+    } catch (error) {
+        console.error("Error al cargar productos:", error);
+    }
+}
+
+function mostrarProductos(lista = productos) {
     listaVinos.innerHTML = '';
-    productos.forEach((producto, index) => {
+    lista.forEach(producto => {
         const div = document.createElement('div');
-
         div.innerHTML = `
             <span>${producto.nombre} - $${producto.precio}</span>
-            <button data-index="${index}">Agregar al carrito</button>
+            <button data-index="${productos.indexOf(producto)}">Agregar al carrito</button>
         `;
         listaVinos.appendChild(div);
     });
 }
 
-// Función para actualizar el carrito en el DOM
 function actualizarCarrito() {
     if (carrito.length === 0) {
         carritoContenido.innerHTML = '<p>Tu carrito está vacío.</p>';
@@ -46,7 +38,7 @@ function actualizarCarrito() {
     let total = 0;
     let ul = document.createElement('ul');
 
-    carrito.forEach((item) => {
+    carrito.forEach(item => {
         const li = document.createElement('li');
         li.textContent = `${item.nombre} - $${item.precio}`;
         ul.appendChild(li);
@@ -62,26 +54,32 @@ function actualizarCarrito() {
     carritoContenido.appendChild(totalDiv);
 }
 
-// Función para agregar producto al carrito
 function agregarAlCarrito(index) {
     carrito.push(productos[index]);
     guardarCarrito();
     actualizarCarrito();
 }
 
-// Guardar carrito en localStorage
 function guardarCarrito() {
     localStorage.setItem('carrito', JSON.stringify(carrito));
 }
 
-// Vaciar carrito
 function vaciarCarrito() {
-    carrito = [];
-    guardarCarrito();
-    actualizarCarrito();
+    Swal.fire({
+        title: "¿Vaciar el carrito?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, vaciar",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            carrito = [];
+            guardarCarrito();
+            actualizarCarrito();
+            Swal.fire("Carrito vaciado", "", "success");
+        }
+    });
 }
 
-// Evento para los botones "Agregar al carrito"
 listaVinos.addEventListener('click', e => {
     if (e.target.tagName === 'BUTTON') {
         const index = e.target.getAttribute('data-index');
@@ -89,9 +87,33 @@ listaVinos.addEventListener('click', e => {
     }
 });
 
-// Evento para vaciar carrito
 btnVaciarCarrito.addEventListener('click', vaciarCarrito);
 
+inputBuscar.addEventListener('input', e => {
+    const texto = e.target.value.toLowerCase();
+    const filtrados = productos.filter(p => p.nombre.toLowerCase().includes(texto));
+    mostrarProductos(filtrados);
+});
 
-mostrarProductos();
+formCompra.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (carrito.length === 0) {
+        Swal.fire("Tu carrito está vacío", "", "warning");
+        return;
+    }
+
+    const nombre = document.getElementById('nombre').value;
+    const email = document.getElementById('email').value;
+
+    Swal.fire({
+        title: `¡Gracias por tu compra, ${nombre}!`,
+        text: `Te enviamos la confirmación a ${email}`,
+        icon: "success"
+    });
+
+    vaciarCarrito();
+    formCompra.reset();
+});
+
+cargarProductos();
 actualizarCarrito();

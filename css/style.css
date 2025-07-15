@@ -9,12 +9,21 @@ h1, h2 {
     color: white;
 }
 
-#productos, #carrito {
+#productos, #carrito, #finalizar-compra {
     background: white;
     padding: 15px;
     margin: 20px auto;
     max-width: 600px;
     border-radius: 8px;
+}
+
+#buscar {
+    display: block;
+    margin: 10px auto 20px auto;
+    padding: 8px;
+    width: 80%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 #lista-vinos > div {
@@ -25,7 +34,7 @@ h1, h2 {
     border-bottom: 1px solid #ddd;
 }
 
-#lista-vinos button, #vaciar-carrito {
+#lista-vinos button, #vaciar-carrito, #form-compra button {
     background-color: rgb(192, 12, 48);
     color: white;
     border: none;
@@ -35,7 +44,7 @@ h1, h2 {
     margin-top: 5px;
 }
 
-#lista-vinos button:hover, #vaciar-carrito:hover {
+#lista-vinos button:hover, #vaciar-carrito:hover, #form-compra button:hover {
     background-color: rgb(147, 0, 29);
 }
 
@@ -46,4 +55,17 @@ h1, h2 {
 
 #carrito-contenido li {
     margin-bottom: 6px;
+}
+
+#form-compra {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+#form-compra input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
