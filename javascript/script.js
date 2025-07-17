@@ -7,6 +7,7 @@ const btnVaciarCarrito = document.getElementById('vaciar-carrito');
 const formCompra = document.getElementById('form-compra');
 const inputBuscar = document.getElementById('buscar');
 
+// Cargar productos desde JSON
 async function cargarProductos() {
     try {
         const res = await fetch('productos.json');
@@ -17,18 +18,36 @@ async function cargarProductos() {
     }
 }
 
+// Mostrar productos en el HTML
 function mostrarProductos(lista = productos) {
     listaVinos.innerHTML = '';
     lista.forEach(producto => {
         const div = document.createElement('div');
         div.innerHTML = `
             <span>${producto.nombre} - $${producto.precio}</span>
-            <button data-index="${productos.indexOf(producto)}">Agregar al carrito</button>
+            <button data-id="${producto.id}">Agregar al carrito</button>
         `;
         listaVinos.appendChild(div);
     });
 }
 
+// Agregar un producto al carrito
+function agregarAlCarrito(id) {
+    const producto = productos.find(p => p.id === parseInt(id));
+    if (!producto) return;
+
+    const existente = carrito.find(p => p.id === producto.id);
+    if (existente) {
+        existente.cantidad++;
+    } else {
+        carrito.push({ ...producto, cantidad: 1 });
+    }
+
+    guardarCarrito();
+    actualizarCarrito();
+}
+
+// Mostrar contenido del carrito
 function actualizarCarrito() {
     if (carrito.length === 0) {
         carritoContenido.innerHTML = '<p>Tu carrito está vacío.</p>';
@@ -40,13 +59,14 @@ function actualizarCarrito() {
 
     carrito.forEach(item => {
         const li = document.createElement('li');
-        li.textContent = `${item.nombre} - $${item.precio}`;
+        li.textContent = `${item.nombre} - $${item.precio} x${item.cantidad}`;
         ul.appendChild(li);
-        total += item.precio;
+        total += item.precio * item.cantidad;
     });
 
     carritoContenido.innerHTML = '';
     carritoContenido.appendChild(ul);
+
     const totalDiv = document.createElement('div');
     totalDiv.textContent = `Total: $${total}`;
     totalDiv.style.fontWeight = 'bold';
@@ -54,16 +74,12 @@ function actualizarCarrito() {
     carritoContenido.appendChild(totalDiv);
 }
 
-function agregarAlCarrito(index) {
-    carrito.push(productos[index]);
-    guardarCarrito();
-    actualizarCarrito();
-}
-
+// Guardar carrito en localStorage
 function guardarCarrito() {
     localStorage.setItem('carrito', JSON.stringify(carrito));
 }
 
+// Vaciar el carrito con SweetAlert2
 function vaciarCarrito() {
     Swal.fire({
         title: "¿Vaciar el carrito?",
@@ -80,10 +96,11 @@ function vaciarCarrito() {
     });
 }
 
+// Eventos
 listaVinos.addEventListener('click', e => {
     if (e.target.tagName === 'BUTTON') {
-        const index = e.target.getAttribute('data-index');
-        agregarAlCarrito(index);
+        const id = e.target.getAttribute('data-id');
+        agregarAlCarrito(id);
     }
 });
 
@@ -97,6 +114,7 @@ inputBuscar.addEventListener('input', e => {
 
 formCompra.addEventListener('submit', (e) => {
     e.preventDefault();
+
     if (carrito.length === 0) {
         Swal.fire("Tu carrito está vacío", "", "warning");
         return;
@@ -111,9 +129,12 @@ formCompra.addEventListener('submit', (e) => {
         icon: "success"
     });
 
-    vaciarCarrito();
+    carrito = [];
+    guardarCarrito();
+    actualizarCarrito();
     formCompra.reset();
 });
 
+// Inicialización
 cargarProductos();
 actualizarCarrito();
