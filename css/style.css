@@ -4,7 +4,12 @@ body {
     background: #002f87;
 }
 
-h1, h2 {
+h1 {
+    text-align: center;
+    color: white;
+}
+
+h2 {
     text-align: center;
     color: #002f87;
 }
